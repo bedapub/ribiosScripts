@@ -1,0 +1,95 @@
+#!/usr/bin/env Rscript
+
+suppressMessages(library(ribiosArg))
+suppressMessages(library(ribiosUtils))
+scriptInit()
+
+usage <- paste("Plot the sample relations based on PCA (principal component analysis)\n",
+               scriptName(), " -infile FILE [-outfile FILE] [-cls FILE] [-outRfile FILE] [-outTable FILE] [-log FILE]\n",
+               "Mandatory options:\n",
+               "  -infile: Input file in gct or tsv format, containing *normalized expression values*\n",
+               "Optional parameters\n",
+               "  -outfile: Output plot file. Image format will be determined by the file suffix\n",
+               "            E.g. abc.png produces PNG file, and abc.pdf produces PDF file. PDF is the default\n",
+               "            If missing, the file name will be derived from the infile\n",
+               "  -cls: Sample annotation in the CLS format, matching the GCT file.\n",
+               "         If provided, samples are colored in the plot by the group\n",
+	       "  -scale: scale the data before running the PCA algorithm\n",
+               "  -outRfile: Output RData file, containing the data objects.\n",
+	       "  -outTable: Output tab-delimited file containing COA coordinates.\n",
+	       "  -choices: Which principal components are plotted? In the format of X,Y. Default is 1,2\n",
+	       "  -log FILE: write log into file. Use '-log -' to write log to the standard output.\n",
+               sep="")
+
+
+##----------------------------------------##
+## parse input files
+##----------------------------------------##
+argParse("outfile,1 cls,1 scale outRfile,1 outTable,1 choices,1 log,1",
+         "infile", usage=usage)
+logfile <- argGet("log", default=NULL)
+registerLog(logfile)
+
+## mandatory parameters
+assertFile(infile <- argGet("infile"))
+outfile <- ifelse(argPresent("outfile"),
+                  argGet("outfile"),
+                  paste(basefilename(basename(infile)), ".pdf", sep=""))
+clsfile <- argGet("cls"); hasCls <- !is.null(clsfile)
+if(hasCls) assertFile(clsfile)
+outRfile <- argGet("outRfile", default=NULL)
+outTable <- argGet("outTable", default=NULL)
+choices <- parseNumVec(argGet("choices", default=NULL),
+                       expLen=2, failVal=c(1,2))
+scale <- argPresent("scale")
+
+## Load libraries
+libordie("ribiosPlot")
+libordie("ribiosIO")
+
+##----------------------------------------##
+## Running
+##----------------------------------------##
+doLog("Data read in")
+tbl <- read_exprs_matrix(infile)
+if(hasCls) {
+  samfac <- read_cls(clsfile)
+  if(length(samfac)!=ncol(tbl))
+    qqmsg("Different sample numbers in the cls file (", length(samfac), ") and in infile (", ncol(tbl),")",
+          status=2L)
+} else {
+  samfac <- factor(rep("samples", ncol(tbl)))
+}
+samcol <- fcbrewer(samfac, "Set1")
+
+doLog("Running PCA")
+pca <- prcomp(t(tbl), scale.=scale)
+
+doLog("Exporting the plot")
+openFileDevice(outfile)
+plotPCA(pca, choices=choices, points=list(pch=21, bg=samcol),
+        text=list(labels=colnames(tbl), col=samcol, pos=3))
+closeFileDevice()
+
+if(!is.null(outRfile)) {
+  doLog("Exporting binary data")
+  save(pca, file=outRfile)
+}
+
+pca2coord <- function(x) {
+  scores <- x$x
+  lam <- x$sdev
+  n <- NROW(scores)
+  lam <- lam * sqrt(n)
+  xx <- t(t(scores)/lam)
+  return(xx)
+}
+pcaCoord <- pca2coord(pca)
+
+if(!is.null(outTable)) {
+  doLog("Exporting matrix table")
+  write.table(pcaCoord, file=outTable, sep="\t", quote=FALSE, row.names=TRUE, col.names=NA)
+}
+
+doLog("Program exiting")
+qqmsg(status=0L)
