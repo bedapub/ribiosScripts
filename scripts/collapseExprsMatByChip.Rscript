@@ -1,0 +1,86 @@
+#!/bin/env Rscript
+
+suppressMessages(library(ribiosUtils))
+suppressMessages(library(ribiosArg))
+scriptInit()
+
+usage <- paste("Collapse any GCT/tab-delimited files given a chip file\n",
+               "Usage: ", scriptName(), " -infile FILE -chipfile FILE [-outfile FILE] [-stat maxMean] [-useChipfileAnno]\n",
+               "Mandoary parameters:\n",
+               "  -infile: Input gct or tab-delimited file\n",
+               "  -chipfile: A tab-delimited file with three columns (with header):\n",
+               "             Feature, GeneSymbol, Description\n",
+               "\n",
+               "Optional parameters:\n",
+               "  -outfile: Output file. If omitted, written to standard output\n",
+               "  -stat: Statistics used to collapse features that map to the same GeneSymbol.\n",
+               "         Possible options are:\n",
+               "         maxMean: The feature with the maximal mean expression value is chosen.\n",
+               "  -useChipfileAnno: By default the output GCT uses NAME and DESCRIPTION columns of the input gct/tsv file.\n",
+               "                    If given, then GeneSymbol (or whatever identifiers in the second column) and Description in chip file are used.\n",
+               sep="")
+argParse("outfile,1 stat,1 useChipfileAnno log,1", "infile chipfile", usage=usage)
+
+
+##--------------------##
+## Log
+##--------------------##
+registerLog(argGet("log", default=NULL))
+doLog("%s starts", scriptName())
+doLog("Parsing input parameters")
+
+assertFile(infile <- argGet("infile"))
+assertFile(chipfile <- argGet("chipfile"))
+outfile <- argGet("outfile", default=stdout())
+stat <- argGet("stat", default="maxMean", choices=c("maxMean"))
+if(stat=="maxMean") {
+    statFunc <- function(x) mean(x, na.rm=TRUE)
+} else {
+    stop("'stat' option not recognised. Please consult the developer")
+}
+outGs <- argPresent("useChipfileAnno")
+
+##--------------------##
+## Load library
+##--------------------##
+libordie("ribiosIO")
+
+##--------------------##
+## Load files
+##--------------------##
+doLog("Read in expression file")
+mat <- read_exprs_matrix(infile)
+doLog("Read chipfile")
+chip <- readMatrix(chipfile, row.names=FALSE, as.matrix=FALSE)
+gctDesc <- attr(mat, "desc")
+ordChip <- matchColumn(rownames(mat), chip, 1L)
+
+keys <- ordChip[,2L]
+
+newLogi <- isMaxStatRow(mat,
+                        keys=keys,
+                        keepNArows=FALSE,
+                        stat=statFunc)
+
+newMat <- mat[newLogi,,drop=FALSE]
+
+featNames <- rownames(newMat)
+featDesc <- NULL
+if(outGs) {
+   featNames <- keys[newLogi]
+   featDesc <- ordChip[newLogi, 3L]
+} else {
+   if(!is.null(gctDesc))
+       featDesc <- gctDesc[newLogi]
+}
+
+##--------------------##
+## Export
+##--------------------##
+doLog("Export file")
+write_gct(newMat, file=outfile,
+          feat.name=featNames,
+          feat.desc=featDesc)
+
+doLog("Program exiting")
+qqmsg(status=0)
