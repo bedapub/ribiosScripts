@@ -48,7 +48,7 @@ outfile <- argGet("outfile", default=stdout())
 
 ## GMT file
 system_gmtfile = system.file("extdata/exp.tissuemark.bioqc.roche.symbols.gmt", package = "BioQC")
-assertFile(gmtfile <- argGet("gmt")
+assertFile(gmtfile <- argGet("gmt"))
 doLog("Reading in signatures", level=1)
 gmtList <- BioQC::readGmt(gmtfile)
 
