@@ -129,7 +129,7 @@ Alternatively, one can set the required environment variables
 export SINGULARITY_DOCKER_USERNAME=<username>
 export SINGULARITY_DOCKER_PASSWORD=<read-packages token>
 
-singularity run docker://ghcr.io/bedapub/ribiosscripts:main python
+singularity run docker://ghcr.io/bedapub/ribiosscripts:main R
 ```
 
 ### 3. Pull or run the image
