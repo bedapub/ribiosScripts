@@ -5,9 +5,9 @@ suppressMessages(library(ribiosArg))
 scriptInit()
 
 usage <- paste("Run BioQC algorithm with expression data\n",
-               "Usage:",
+               "Usage: ",
                scriptName(),
-               "-infile FILE [-featuretype TYPE] [-outfile FILE] [-threshold VAL] [-gmt FILE] [-appendGmtDesc] [-alternative ALT] [-log FILE]\n\n",
+               " -infile FILE [-featuretype TYPE] [-outfile FILE] [-threshold VAL] [-gmt FILE] [-appendGmtDesc] [-alternative ALT] [-log FILE]\n\n",
                "Mandatory parameters:\n",
                "  -infile FILE\tGene expression in GCT or ChipFetcher format\n\n",
                "Commonly used optional parameters:\n",
@@ -47,8 +47,8 @@ assertFile(infile <- argGet("infile"))
 outfile <- argGet("outfile", default=stdout())
 
 ## GMT file
-system_gmtfile = system.file("extdata/exp.tissuemark.bioqc.roche.symbols.gmt", package = "BioQC")
-assertFile(gmtfile <- argGet("gmt"))
+gmtfile <- argGet("gmt", default=system.file("extdata/exp.tissuemark.bioqc.roche.symbols.gmt", package = "BioQC"))
+assertFile(gmtfile)
 doLog("Reading in signatures", level=1)
 gmtList <- BioQC::readGmt(gmtfile)
 
