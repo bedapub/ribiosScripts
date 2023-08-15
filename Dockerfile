@@ -24,7 +24,7 @@ RUN apt-get update -y && apt-get install --no-install-recommends -y \
 RUN R -e "options(Ncpus = parallel::detectCores()); \
     chooseCRANmirror(ind = 1); \
     BiocManager::install(c(\
-      'ComplexHeatmap', 'reshape', 'openxlsx', 'corrplot',\
+      'ComplexHeatmap', 'reshape', 'openxlsx', 'corrplot', 'plotrix',\
       'ggrepel', 'fgsea', 'randomForest', 'KEGGgraph',\
       'mgcv', 'caret', 'graph', 'RBGL' \
       ), dependencies = NA, update = FALSE, \
