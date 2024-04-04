@@ -1,7 +1,7 @@
 ribiosScripts: Rscripts associated with the ribios suite
 ===
 
-This repo contains Rscripts as command-line tools, written with ribios R packages. A Docker image is stored under the GitHub package registry.
+This repository contains Rscripts as command-line tools, written with ribios R packages. A Docker image is stored under the GitHub package registry.
 
 
 ## Available Ribios Scripts
