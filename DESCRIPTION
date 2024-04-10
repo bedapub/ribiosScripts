@@ -1,0 +1,42 @@
+Package: ribiosScripts
+Title: Rscripts associated with the ribios suite
+Version: 0.0.1
+Authors@R: c(
+    person(given = "Jitao David",
+           family = "Zhang",
+           role = c("aut", "cph"),
+           email = "jitao_david.zhang@roche.com",
+           comment = c(ORCID="0000-0002-3085-0909")),
+    person(given = c(first = "Iakov", middle = "I."),
+           family = "Davydov",
+           role = c("ctb"),
+           email = "iakov.davydov@roche.com",
+           comment = c(ORCID = "0000-0003-3510-3926")),
+    person(given = "Roland",
+           family = "Schmucki",
+           role = c("aut", "cre", "cph"),
+           email = "guido.steiner@roche.com",
+           comment = c(ORCID = "")),
+    person(given = "F. Hoffman-La Roche", role = c("cph", "fnd")))
+Description: Rscripts as command-line tools, written with ribios R packages.
+    A Docker image is stored under the GitHub package registry.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports: 
+    BioQC,
+    ribiosAnnotation,
+    ribiosArg,
+    ribiosExpression,
+    ribiosIO,
+    ribiosPlot,
+    ribiosUtils
+Remotes:
+    github::bedapub/ribiosAnnotation,
+    github::bedapub/ribiosArg,
+    github::bedapub/ribiosExpression,
+    github::bedapub/ribiosIO,
+    github::bedapub/ribiosPlot,
+    github::bedapub/ribiosUtils
+biocViews:
