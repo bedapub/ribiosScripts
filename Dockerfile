@@ -52,6 +52,6 @@ RUN R -e "options(Ncpus = parallel::detectCores()); \
 
 ## copy the scripts into the bin directory
 WORKDIR /ribiosScripts/bin/
-COPY ./scripts/*.Rscript /ribiosScripts/bin/
+COPY ./inst/scripts/*.Rscript /ribiosScripts/bin/
 RUN chmod +x /ribiosScripts/bin/*.Rscript
 ENV PATH "$PATH:/ribiosScripts/bin"
