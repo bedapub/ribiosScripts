@@ -55,3 +55,6 @@ WORKDIR /ribiosScripts/bin/
 COPY ./scripts/*.Rscript /ribiosScripts/bin/
 RUN chmod +x /ribiosScripts/bin/*.Rscript
 ENV PATH "$PATH:/ribiosScripts/bin"
+
+# Set the entrypoint to R
+ENTRYPOINT ["R"]
